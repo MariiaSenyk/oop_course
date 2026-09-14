@@ -7,6 +7,6 @@ public static class Program
         System.Threading.Thread.CurrentThread.CurrentCulture =
             System.Globalization.CultureInfo.InvariantCulture;
 
-        Task01.Run();
+        Task02.Run();
     }
 }
