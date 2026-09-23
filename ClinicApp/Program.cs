@@ -42,6 +42,44 @@ public static class Program
         Console.WriteLine();
         clinic.GenerateReport();
 
+        Console.WriteLine();
+        Console.WriteLine("=== Тест GrowablePatientManager ===");
+        Console.WriteLine("Додаємо пацієнтів одного за одним...");
+
+        GrowablePatientManager growable = new GrowablePatientManager();
+        for (int i = 1; i <= 20; i++)
+        {
+            growable.Add(new Patient("Тест", $"Пацієнт{i}", new DateTime(1990, 1, 1), "A+", "0000000000"));
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Тест пошуку:");
+
+        Patient? found = growable.FindById(10);
+        if (found != null)
+        {
+            Console.WriteLine($"  FindById(10) → {found.FullName}");
+        }
+        else
+        {
+            Console.WriteLine("  FindById(10) → не знайдено");
+        }
+
+        Patient? notFound = growable.FindById(99);
+        if (notFound == null)
+        {
+            Console.WriteLine("  FindById(99) → не знайдено");
+        }
+        else
+        {
+            Console.WriteLine($"  FindById(99) → {notFound.FullName}");
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Порівняння:");
+        Console.WriteLine("  PatientManager:         100 місць (фіксовано)");
+        Console.WriteLine($"  GrowablePatientManager:  {growable.Capacity} місця (зросте при потребі)");
+
         while (true)
         {
             Console.WriteLine();
