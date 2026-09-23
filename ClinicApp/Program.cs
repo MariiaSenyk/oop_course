@@ -26,26 +26,37 @@ public static class Program
 
         Doctor d3 = new Doctor("Андрій", "Власенко", "Педіатрія", "LIC-003", "0443456789");
         doctorManager.Add(d3);
+
+        AppointmentManager appointmentManager = new AppointmentManager(patientManager, doctorManager);
+
         Console.WriteLine();
-        Console.WriteLine("=== Прийоми ===");
+        Console.WriteLine("=== Записи ===");
 
-        Appointment a1 = new Appointment(1, 1, new DateTime(2026, 5, 9, 10, 0, 0));
-        Appointment a2 = new Appointment(2, 2, new DateTime(2026, 5, 9, 11, 0, 0), 45);
-        Appointment a3 = new Appointment(3, 3, new DateTime(2026, 5, 10, 9, 0, 0), 20);
+        appointmentManager.Book(1, 1, new DateTime(2026, 5, 9, 10, 0, 0));
+        appointmentManager.Book(2, 2, new DateTime(2026, 5, 9, 11, 0, 0), 45);
+        appointmentManager.Book(3, 3, new DateTime(2026, 5, 10, 9, 0, 0), 20);
 
-        a1.Cancel("Пацієнт не зміг прийти");
-        a2.Complete();
+        Console.WriteLine();
+        appointmentManager.Book(99, 1, new DateTime(2026, 5, 9, 12, 0, 0));
 
-        Console.WriteLine(a1);
-        Console.WriteLine(a2);
-        Console.WriteLine(a3);
-        
+        Console.WriteLine();
+        Console.WriteLine("Майбутні записи:");
+        appointmentManager.DisplayList(appointmentManager.GetUpcoming());
+
+        Console.WriteLine();
+        appointmentManager.Cancel(1, "Пацієнт не зміг прийти");
+
+        Console.WriteLine();
+        Console.WriteLine("Записи пацієнта #2:");
+        appointmentManager.DisplayList(appointmentManager.GetByPatient(2));
+
         while (true)
         {
             Console.WriteLine();
             Console.WriteLine("=== Головне меню ===");
             Console.WriteLine("1. Пацієнти");
             Console.WriteLine("2. Лікарі");
+            Console.WriteLine("3. Записи");
             Console.WriteLine("0. Вихід");
             Console.Write("Ваш вибір: ");
 
@@ -58,6 +69,10 @@ public static class Program
             else if (choice == "2")
             {
                 DoctorMenu(doctorManager);
+            }
+            else if (choice == "3")
+            {
+                AppointmentMenu(appointmentManager, patientManager, doctorManager);
             }
             else if (choice == "0")
             {
@@ -233,6 +248,118 @@ public static class Program
             else if (choice == "5")
             {
                 manager.DisplayStats();
+            }
+            else if (choice == "0")
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Невідома команда.");
+            }
+        }
+    }
+
+    private static void AppointmentMenu(AppointmentManager manager, PatientManager patients, DoctorManager doctors)
+    {
+        while (true)
+        {
+            Console.WriteLine();
+            Console.WriteLine("=== Меню: Записи ===");
+            Console.WriteLine("1. Показати всі майбутні");
+            Console.WriteLine("2. Створити запис");
+            Console.WriteLine("3. Скасувати запис");
+            Console.WriteLine("4. Завершити запис");
+            Console.WriteLine("5. Записи пацієнта");
+            Console.WriteLine("6. Записи лікаря");
+            Console.WriteLine("7. Записи на дату");
+            Console.WriteLine("0. Назад");
+            Console.Write("Ваш вибір: ");
+
+            string choice = Console.ReadLine()!;
+
+            if (choice == "1")
+            {
+                manager.DisplayList(manager.GetUpcoming());
+            }
+            else if (choice == "2")
+            {
+                Console.WriteLine("Доступні пацієнти:");
+                patients.DisplayAll();
+                Console.WriteLine("Доступні лікарі:");
+                doctors.DisplayAll();
+
+                Console.Write("Id пацієнта: ");
+                int patientId = int.Parse(Console.ReadLine()!);
+                Console.Write("Id лікаря: ");
+                int doctorId = int.Parse(Console.ReadLine()!);
+                Console.Write("Рік: ");
+                int year = int.Parse(Console.ReadLine()!);
+                Console.Write("Місяць: ");
+                int month = int.Parse(Console.ReadLine()!);
+                Console.Write("День: ");
+                int day = int.Parse(Console.ReadLine()!);
+                Console.Write("Година: ");
+                int hour = int.Parse(Console.ReadLine()!);
+                Console.Write("Хвилини: ");
+                int minute = int.Parse(Console.ReadLine()!);
+
+                manager.Book(patientId, doctorId, new DateTime(year, month, day, hour, minute, 0));
+            }
+            else if (choice == "3")
+            {
+                Console.Write("Id запису: ");
+                int id = int.Parse(Console.ReadLine()!);
+                Console.Write("Причина: ");
+                string reason = Console.ReadLine()!;
+
+                bool ok = manager.Cancel(id, reason);
+                if (ok)
+                {
+                    Console.WriteLine($"Запис [{id}] скасовано.");
+                }
+                else
+                {
+                    Console.WriteLine($"Не вдалося скасувати запис [{id}].");
+                }
+            }
+            else if (choice == "4")
+            {
+                Console.Write("Id запису: ");
+                int id = int.Parse(Console.ReadLine()!);
+
+                bool ok = manager.Complete(id);
+                if (ok)
+                {
+                    Console.WriteLine($"Запис [{id}] завершено.");
+                }
+                else
+                {
+                    Console.WriteLine($"Не вдалося завершити запис [{id}].");
+                }
+            }
+            else if (choice == "5")
+            {
+                Console.Write("Id пацієнта: ");
+                int patientId = int.Parse(Console.ReadLine()!);
+                manager.DisplayList(manager.GetByPatient(patientId));
+            }
+            else if (choice == "6")
+            {
+                Console.Write("Id лікаря: ");
+                int doctorId = int.Parse(Console.ReadLine()!);
+                manager.DisplayList(manager.GetByDoctor(doctorId));
+            }
+            else if (choice == "7")
+            {
+                Console.Write("Рік: ");
+                int year = int.Parse(Console.ReadLine()!);
+                Console.Write("Місяць: ");
+                int month = int.Parse(Console.ReadLine()!);
+                Console.Write("День: ");
+                int day = int.Parse(Console.ReadLine()!);
+
+                manager.DisplayList(manager.GetByDate(new DateTime(year, month, day)));
             }
             else if (choice == "0")
             {
