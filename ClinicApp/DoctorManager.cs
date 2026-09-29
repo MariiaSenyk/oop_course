@@ -36,24 +36,25 @@ public class DoctorManager
         return null;
     }
 
-    public Doctor[] FindBySpeciality(string speciality)
+    public Doctor[] FindBySpeciality(string query)
     {
-        string lower = speciality.ToLower();
+        Speciality target;
+        if (!Enum.TryParse(query, true, out target))
+        {
+            return new Doctor[0];
+        }
 
         int matches = 0;
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality.ToLower() == lower)
-            {
-                matches++;
-            }
+            if (_doctors[i].Speciality == target) matches++;
         }
 
         Doctor[] result = new Doctor[matches];
         int index = 0;
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality.ToLower() == lower)
+            if (_doctors[i].Speciality == target)
             {
                 result[index] = _doctors[i];
                 index++;
@@ -136,12 +137,12 @@ public class DoctorManager
 
         for (int i = 0; i < _count; i++)
         {
-            string speciality = _doctors[i].Speciality;
+            Speciality speciality = _doctors[i].Speciality;
 
             bool alreadySeen = false;
             for (int j = 0; j < i; j++)
             {
-                if (_doctors[j].Speciality.ToLower() == speciality.ToLower())
+                if (_doctors[j].Speciality == speciality)
                 {
                     alreadySeen = true;
                     break;
@@ -153,7 +154,7 @@ public class DoctorManager
             int countWithSpeciality = 0;
             for (int j = 0; j < _count; j++)
             {
-                if (_doctors[j].Speciality.ToLower() == speciality.ToLower())
+                if (_doctors[j].Speciality == speciality)
                 {
                     countWithSpeciality++;
                 }
