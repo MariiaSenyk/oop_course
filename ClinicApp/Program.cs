@@ -15,12 +15,11 @@ public static class Program
         clinic.Patients.Add(new Patient("Марія", "Ткач"));
 
         Doctor d1 = new Doctor("Олег", "Сидоренко", Speciality.Cardiology, "LIC-001", "0441234567");
-        d1.WorkEndHour = 16;
+        d1.Schedule = new WorkSchedule(8, 16);
         clinic.Doctors.Add(d1);
 
         Doctor d2 = new Doctor("Наталія", "Мороз", Speciality.Neurology, "LIC-002", "0442345678");
-        d2.WorkStartHour = 9;
-        d2.WorkEndHour = 18;
+        d2.Schedule = new WorkSchedule(9, 18);
         clinic.Doctors.Add(d2);
 
         Doctor d3 = new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789");
@@ -41,6 +40,21 @@ public static class Program
 
         Console.WriteLine();
         clinic.GenerateReport();
+
+        Console.WriteLine();
+        Console.WriteLine("=== Тест WorkSchedule (value type) ===");
+
+        WorkSchedule morning = new WorkSchedule(8, 16);
+        WorkSchedule evening = new WorkSchedule(14, 22);
+        Console.WriteLine($"morning: {morning}");
+        Console.WriteLine($"evening: {evening}");
+        Console.WriteLine($"morning.IsNow: {morning.IsNow}");
+        Console.WriteLine($"evening.IsNow: {evening.IsNow}");
+
+        WorkSchedule copy = morning;
+        copy = new WorkSchedule(10, 20);
+        Console.WriteLine($"morning після копіювання: {morning}");
+        Console.WriteLine($"copy після переприсвоєння: {copy}");
 
         Console.WriteLine();
         Console.WriteLine("=== Тест GrowablePatientManager ===");
