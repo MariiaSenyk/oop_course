@@ -57,6 +57,45 @@ public static class Program
         Console.WriteLine($"copy після переприсвоєння: {copy}");
 
         Console.WriteLine();
+        Console.WriteLine("=== Тест перевантажень та out ===");
+
+        Doctor[] cardiologists = clinic.Doctors.FindBySpeciality(Speciality.Cardiology);
+        Console.WriteLine($"FindBySpeciality(Speciality.Cardiology) → знайдено {cardiologists.Length}");
+
+        Doctor[] byString = clinic.Doctors.FindBySpeciality("cardio");
+        Console.WriteLine($"FindBySpeciality(\"cardio\") → знайдено {byString.Length}");
+
+        Appointment[] onDate = clinic.Appointments.GetByDate(2026, 5, 9);
+        Console.WriteLine($"GetByDate(2026, 5, 9) → знайдено {onDate.Length}");
+
+        if (clinic.Patients.TryFindById(3, out Patient patient))
+        {
+            Console.WriteLine($"TryFindById(3) → знайдено: {patient.FullName}");
+        }
+        else
+        {
+            Console.WriteLine("TryFindById(3) → не знайдено");
+        }
+
+        if (clinic.Patients.TryFindById(99, out Patient missing))
+        {
+            Console.WriteLine($"TryFindById(99) → знайдено: {missing.FullName}");
+        }
+        else
+        {
+            Console.WriteLine("TryFindById(99) → не знайдено");
+        }
+
+        Patient[] byBlood = clinic.Patients.FindByBloodType(BloodType.APositive);
+        Console.WriteLine($"FindByBloodType(APositive) → знайдено {byBlood.Length}");
+
+        string name = clinic.Patients.FindById(99)?.FullName ?? "не знайдено";
+        Console.WriteLine($"FindById(99)?.FullName ?? \"не знайдено\" → {name}");
+
+        string existingName = clinic.Patients.FindById(1)?.FullName ?? "не знайдено";
+        Console.WriteLine($"FindById(1)?.FullName ?? \"не знайдено\" → {existingName}");
+
+        Console.WriteLine();
         Console.WriteLine("=== Тест GrowablePatientManager ===");
         Console.WriteLine("Додаємо пацієнтів одного за одним...");
 
@@ -422,7 +461,7 @@ public static class Program
                 Console.Write("День: ");
                 int day = int.Parse(Console.ReadLine()!);
 
-                clinic.Appointments.DisplayList(clinic.Appointments.GetByDate(new DateTime(year, month, day)));
+                clinic.Appointments.DisplayList(clinic.Appointments.GetByDate(year, month, day));
             }
             else if (choice == "0")
             {

@@ -13,6 +13,7 @@ public class AppointmentManager
     {
         get { return _count; }
     }
+
     public Appointment? this[int index]
     {
         get
@@ -24,6 +25,7 @@ public class AppointmentManager
             return _appointments[index];
         }
     }
+
     public AppointmentManager(PatientManager patients, DoctorManager doctors)
     {
         _patients = patients;
@@ -143,6 +145,11 @@ public class AppointmentManager
             }
         }
         return result;
+    }
+
+    public Appointment[] GetByDate(int year, int month, int day)
+    {
+        return GetByDate(new DateTime(year, month, day));
     }
 
     public Appointment[] GetUpcoming()

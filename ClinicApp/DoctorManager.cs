@@ -10,6 +10,7 @@ public class DoctorManager
     {
         get { return _count; }
     }
+
     public Doctor? this[int index]
     {
         get
@@ -21,6 +22,7 @@ public class DoctorManager
             return _doctors[index];
         }
     }
+
     public void Add(Doctor doctor)
     {
         if (_count >= MaxDoctors)
@@ -46,25 +48,58 @@ public class DoctorManager
         return null;
     }
 
+    public bool TryFindById(int id, out Doctor doctor)
+    {
+        Doctor? found = FindById(id);
+        if (found == null)
+        {
+            doctor = null!;
+            return false;
+        }
+
+        doctor = found;
+        return true;
+    }
+
     public Doctor[] FindBySpeciality(string query)
     {
-        Speciality target;
-        if (!Enum.TryParse(query, true, out target))
-        {
-            return new Doctor[0];
-        }
+        string lower = query.ToLower();
 
         int matches = 0;
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality == target) matches++;
+            if (_doctors[i].Speciality.ToString().ToLower().Contains(lower))
+            {
+                matches++;
+            }
         }
 
         Doctor[] result = new Doctor[matches];
         int index = 0;
         for (int i = 0; i < _count; i++)
         {
-            if (_doctors[i].Speciality == target)
+            if (_doctors[i].Speciality.ToString().ToLower().Contains(lower))
+            {
+                result[index] = _doctors[i];
+                index++;
+            }
+        }
+        return result;
+    }
+
+    public Doctor[] FindBySpeciality(Speciality speciality)
+    {
+        int matches = 0;
+        for (int i = 0; i < _count; i++)
+        {
+            if (_doctors[i].Speciality == speciality) matches++;
+        }
+
+        Doctor[] result = new Doctor[matches];
+        int index = 0;
+        for (int i = 0; i < _count; i++)
+        {
+            if (_doctors[i].Speciality == speciality)
             {
                 result[index] = _doctors[i];
                 index++;
@@ -170,7 +205,7 @@ public class DoctorManager
                 }
             }
 
-            Console.WriteLine($"  {speciality}: {countWithSpeciality}");
+            Console.WriteLine($"  {ClinicFormatter.FormatSpeciality(speciality)}: {countWithSpeciality}");
         }
 
         Console.WriteLine("==========================");
