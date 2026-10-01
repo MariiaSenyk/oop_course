@@ -9,21 +9,20 @@ public static class Program
 
         Clinic clinic = new Clinic("Медична Клініка");
 
-        clinic.Patients.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 15), "A+", "0501234567"));
-        clinic.Patients.Add(new Patient("Олена", "Коваль", new DateTime(1993, 8, 20), "B-", "0672345678"));
-        clinic.Patients.Add(new Patient("Максим", "Бойко", new DateTime(2010, 3, 10), "O+", "0933456789"));
+        clinic.Patients.Add(new Patient("Іван", "Петренко", new DateTime(1985, 5, 15), BloodType.APositive, "0501234567"));
+        clinic.Patients.Add(new Patient("Олена", "Коваль", new DateTime(1993, 8, 20), BloodType.BNegative, "0672345678"));
+        clinic.Patients.Add(new Patient("Максим", "Бойко", new DateTime(2010, 3, 10), BloodType.OPositive, "0933456789"));
         clinic.Patients.Add(new Patient("Марія", "Ткач"));
 
-        Doctor d1 = new Doctor("Олег", "Сидоренко", "Кардіологія", "LIC-001", "0441234567");
-        d1.WorkEndHour = 16;
+        Doctor d1 = new Doctor("Олег", "Сидоренко", Speciality.Cardiology, "LIC-001", "0441234567");
+        d1.Schedule = new WorkSchedule(8, 16);
         clinic.Doctors.Add(d1);
 
-        Doctor d2 = new Doctor("Наталія", "Мороз", "Неврологія", "LIC-002", "0442345678");
-        d2.WorkStartHour = 9;
-        d2.WorkEndHour = 18;
+        Doctor d2 = new Doctor("Наталія", "Мороз", Speciality.Neurology, "LIC-002", "0442345678");
+        d2.Schedule = new WorkSchedule(9, 18);
         clinic.Doctors.Add(d2);
 
-        Doctor d3 = new Doctor("Андрій", "Власенко", "Педіатрія", "LIC-003", "0443456789");
+        Doctor d3 = new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789");
         clinic.Doctors.Add(d3);
 
         Console.WriteLine();
@@ -43,13 +42,67 @@ public static class Program
         clinic.GenerateReport();
 
         Console.WriteLine();
+        Console.WriteLine("=== Тест WorkSchedule (value type) ===");
+
+        WorkSchedule morning = new WorkSchedule(8, 16);
+        WorkSchedule evening = new WorkSchedule(14, 22);
+        Console.WriteLine($"morning: {morning}");
+        Console.WriteLine($"evening: {evening}");
+        Console.WriteLine($"morning.IsNow: {morning.IsNow}");
+        Console.WriteLine($"evening.IsNow: {evening.IsNow}");
+
+        WorkSchedule copy = morning;
+        copy = new WorkSchedule(10, 20);
+        Console.WriteLine($"morning після копіювання: {morning}");
+        Console.WriteLine($"copy після переприсвоєння: {copy}");
+
+        Console.WriteLine();
+        Console.WriteLine("=== Тест перевантажень та out ===");
+
+        Doctor[] cardiologists = clinic.Doctors.FindBySpeciality(Speciality.Cardiology);
+        Console.WriteLine($"FindBySpeciality(Speciality.Cardiology) → знайдено {cardiologists.Length}");
+
+        Doctor[] byString = clinic.Doctors.FindBySpeciality("cardio");
+        Console.WriteLine($"FindBySpeciality(\"cardio\") → знайдено {byString.Length}");
+
+        Appointment[] onDate = clinic.Appointments.GetByDate(2026, 5, 9);
+        Console.WriteLine($"GetByDate(2026, 5, 9) → знайдено {onDate.Length}");
+
+        if (clinic.Patients.TryFindById(3, out Patient patient))
+        {
+            Console.WriteLine($"TryFindById(3) → знайдено: {patient.FullName}");
+        }
+        else
+        {
+            Console.WriteLine("TryFindById(3) → не знайдено");
+        }
+
+        if (clinic.Patients.TryFindById(99, out Patient missing))
+        {
+            Console.WriteLine($"TryFindById(99) → знайдено: {missing.FullName}");
+        }
+        else
+        {
+            Console.WriteLine("TryFindById(99) → не знайдено");
+        }
+
+        Patient[] byBlood = clinic.Patients.FindByBloodType(BloodType.APositive);
+        Console.WriteLine($"FindByBloodType(APositive) → знайдено {byBlood.Length}");
+
+        string name = clinic.Patients.FindById(99)?.FullName ?? "не знайдено";
+        Console.WriteLine($"FindById(99)?.FullName ?? \"не знайдено\" → {name}");
+
+        string existingName = clinic.Patients.FindById(1)?.FullName ?? "не знайдено";
+        Console.WriteLine($"FindById(1)?.FullName ?? \"не знайдено\" → {existingName}");
+
+        Console.WriteLine();
         Console.WriteLine("=== Тест GrowablePatientManager ===");
         Console.WriteLine("Додаємо пацієнтів одного за одним...");
 
         GrowablePatientManager growable = new GrowablePatientManager();
         for (int i = 1; i <= 20; i++)
         {
-            growable.Add(new Patient("Тест", $"Пацієнт{i}", new DateTime(1990, 1, 1), "A+", "0000000000"));
+            growable.Add(new Patient("Тест", $"Пацієнт{i}", new DateTime(1990, 1, 1), BloodType.APositive, "0000000000"));
         }
 
         Console.WriteLine();
@@ -165,8 +218,9 @@ public static class Program
                 int month = int.Parse(Console.ReadLine()!);
                 Console.Write("День народження: ");
                 int day = int.Parse(Console.ReadLine()!);
-                Console.Write("Група крові: ");
-                string bloodType = Console.ReadLine()!;
+                Console.Write("Група крові (0-Unknown, 1-APositive, 2-ANegative, 3-BPositive, 4-BNegative, 5-ABPositive, 6-ABNegative, 7-OPositive, 8-ONegative): ");
+                int bloodChoice = int.Parse(Console.ReadLine()!);
+                BloodType bloodType = (BloodType)bloodChoice;
                 Console.Write("Телефон: ");
                 string phone = Console.ReadLine()!;
 
@@ -248,8 +302,9 @@ public static class Program
                 string firstName = Console.ReadLine()!;
                 Console.Write("Прізвище: ");
                 string lastName = Console.ReadLine()!;
-                Console.Write("Спеціальність: ");
-                string speciality = Console.ReadLine()!;
+                Console.Write("Спеціальність (General, Cardiology, Neurology, Pediatrics, Surgery, Orthopedics, Dermatology, Emergency): ");
+                string specialityText = Console.ReadLine()!;
+                Speciality speciality = (Speciality)Enum.Parse(typeof(Speciality), specialityText, true);
                 Console.Write("Номер ліцензії: ");
                 string license = Console.ReadLine()!;
                 Console.Write("Телефон: ");
@@ -406,7 +461,7 @@ public static class Program
                 Console.Write("День: ");
                 int day = int.Parse(Console.ReadLine()!);
 
-                clinic.Appointments.DisplayList(clinic.Appointments.GetByDate(new DateTime(year, month, day)));
+                clinic.Appointments.DisplayList(clinic.Appointments.GetByDate(year, month, day));
             }
             else if (choice == "0")
             {
