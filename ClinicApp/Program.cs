@@ -1,5 +1,10 @@
 ﻿namespace ClinicApp;
 
+using ClinicApp.Enums;
+using ClinicApp.Managers;
+using ClinicApp.Models;
+using ClinicApp.Utils;
+
 public static class Program
 {
     public static void Main()
@@ -208,24 +213,35 @@ public static class Program
             }
             else if (choice == "2")
             {
-                Console.Write("Ім'я: ");
-                string firstName = Console.ReadLine()!;
-                Console.Write("Прізвище: ");
-                string lastName = Console.ReadLine()!;
-                Console.Write("Рік народження: ");
-                int year = int.Parse(Console.ReadLine()!);
-                Console.Write("Місяць народження: ");
-                int month = int.Parse(Console.ReadLine()!);
-                Console.Write("День народження: ");
-                int day = int.Parse(Console.ReadLine()!);
-                Console.Write("Група крові (0-Unknown, 1-APositive, 2-ANegative, 3-BPositive, 4-BNegative, 5-ABPositive, 6-ABNegative, 7-OPositive, 8-ONegative): ");
-                int bloodChoice = int.Parse(Console.ReadLine()!);
-                BloodType bloodType = (BloodType)bloodChoice;
-                Console.Write("Телефон: ");
-                string phone = Console.ReadLine()!;
+                try
+                {
+                    Console.Write("Ім'я: ");
+                    string firstName = Console.ReadLine()!;
+                    Console.Write("Прізвище: ");
+                    string lastName = Console.ReadLine()!;
+                    Console.Write("Рік народження: ");
+                    int year = int.Parse(Console.ReadLine()!);
+                    Console.Write("Місяць народження: ");
+                    int month = int.Parse(Console.ReadLine()!);
+                    Console.Write("День народження: ");
+                    int day = int.Parse(Console.ReadLine()!);
+                    Console.Write("Група крові (0-Unknown, 1-APositive, 2-ANegative, 3-BPositive, 4-BNegative, 5-ABPositive, 6-ABNegative, 7-OPositive, 8-ONegative): ");
+                    int bloodChoice = int.Parse(Console.ReadLine()!);
+                    BloodType bloodType = (BloodType)bloodChoice;
+                    Console.Write("Телефон: ");
+                    string phone = Console.ReadLine()!;
 
-                Patient newPatient = new Patient(firstName, lastName, new DateTime(year, month, day), bloodType, phone);
-                clinic.Patients.Add(newPatient);
+                    Patient newPatient = new Patient(firstName, lastName, new DateTime(year, month, day), bloodType, phone);
+                    clinic.Patients.Add(newPatient);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    Console.WriteLine("Помилка: " + e.Message);
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine("Помилка: " + e.Message);
+                }
             }
             else if (choice == "3")
             {
@@ -298,20 +314,36 @@ public static class Program
             }
             else if (choice == "2")
             {
-                Console.Write("Ім'я: ");
-                string firstName = Console.ReadLine()!;
-                Console.Write("Прізвище: ");
-                string lastName = Console.ReadLine()!;
-                Console.Write("Спеціальність (General, Cardiology, Neurology, Pediatrics, Surgery, Orthopedics, Dermatology, Emergency): ");
-                string specialityText = Console.ReadLine()!;
-                Speciality speciality = (Speciality)Enum.Parse(typeof(Speciality), specialityText, true);
-                Console.Write("Номер ліцензії: ");
-                string license = Console.ReadLine()!;
-                Console.Write("Телефон: ");
-                string phone = Console.ReadLine()!;
+                try
+                {
+                    Console.Write("Ім'я: ");
+                    string firstName = Console.ReadLine()!;
+                    Console.Write("Прізвище: ");
+                    string lastName = Console.ReadLine()!;
+                    Console.Write("Спеціальність (General, Cardiology, Neurology, Pediatrics, Surgery, Orthopedics, Dermatology, Emergency): ");
+                    string specialityText = Console.ReadLine()!;
+                    Speciality speciality = (Speciality)Enum.Parse(typeof(Speciality), specialityText, true);
+                    Console.Write("Номер ліцензії: ");
+                    string license = Console.ReadLine()!;
+                    Console.Write("Телефон: ");
+                    string phone = Console.ReadLine()!;
+                    Console.Write("Година початку роботи: ");
+                    int start = int.Parse(Console.ReadLine()!);
+                    Console.Write("Година кінця роботи: ");
+                    int end = int.Parse(Console.ReadLine()!);
 
-                Doctor newDoctor = new Doctor(firstName, lastName, speciality, license, phone);
-                clinic.Doctors.Add(newDoctor);
+                    Doctor newDoctor = new Doctor(firstName, lastName, speciality, license, phone);
+                    newDoctor.Schedule = new WorkSchedule(start, end);
+                    clinic.Doctors.Add(newDoctor);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    Console.WriteLine("Помилка: " + e.Message);
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine("Помилка: " + e.Message);
+                }
             }
             else if (choice == "3")
             {
@@ -386,27 +418,40 @@ public static class Program
             }
             else if (choice == "2")
             {
-                Console.WriteLine("Доступні пацієнти:");
-                clinic.Patients.DisplayAll();
-                Console.WriteLine("Доступні лікарі:");
-                clinic.Doctors.DisplayAll();
+                try
+                {
+                    Console.WriteLine("Доступні пацієнти:");
+                    clinic.Patients.DisplayAll();
+                    Console.WriteLine("Доступні лікарі:");
+                    clinic.Doctors.DisplayAll();
 
-                Console.Write("Id пацієнта: ");
-                int patientId = int.Parse(Console.ReadLine()!);
-                Console.Write("Id лікаря: ");
-                int doctorId = int.Parse(Console.ReadLine()!);
-                Console.Write("Рік: ");
-                int year = int.Parse(Console.ReadLine()!);
-                Console.Write("Місяць: ");
-                int month = int.Parse(Console.ReadLine()!);
-                Console.Write("День: ");
-                int day = int.Parse(Console.ReadLine()!);
-                Console.Write("Година: ");
-                int hour = int.Parse(Console.ReadLine()!);
-                Console.Write("Хвилини: ");
-                int minute = int.Parse(Console.ReadLine()!);
+                    Console.Write("Id пацієнта: ");
+                    int patientId = int.Parse(Console.ReadLine()!);
+                    Console.Write("Id лікаря: ");
+                    int doctorId = int.Parse(Console.ReadLine()!);
+                    Console.Write("Рік: ");
+                    int year = int.Parse(Console.ReadLine()!);
+                    Console.Write("Місяць: ");
+                    int month = int.Parse(Console.ReadLine()!);
+                    Console.Write("День: ");
+                    int day = int.Parse(Console.ReadLine()!);
+                    Console.Write("Година: ");
+                    int hour = int.Parse(Console.ReadLine()!);
+                    Console.Write("Хвилини: ");
+                    int minute = int.Parse(Console.ReadLine()!);
+                    Console.Write("Тривалість (хвилин): ");
+                    int duration = int.Parse(Console.ReadLine()!);
 
-                clinic.Appointments.Book(patientId, doctorId, new DateTime(year, month, day, hour, minute, 0));
+                    clinic.Appointments.Book(patientId, doctorId, new DateTime(year, month, day, hour, minute, 0), duration);
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    Console.WriteLine("Помилка: " + e.Message);
+                }
+                catch (ArgumentException e)
+                {
+                    Console.WriteLine("Помилка: " + e.Message);
+                }
             }
             else if (choice == "3")
             {

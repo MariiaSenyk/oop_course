@@ -1,4 +1,8 @@
-namespace ClinicApp;
+namespace ClinicApp.Managers;
+
+using ClinicApp.Models;
+using ClinicApp.Enums;
+using ClinicApp.Utils;
 
 public class DoctorManager
 {

@@ -1,4 +1,6 @@
-namespace ClinicApp;
+namespace ClinicApp.Utils;
+
+using ClinicApp.Enums;
 
 public static class ClinicFormatter
 {
