@@ -1,6 +1,7 @@
 namespace ClinicApp.Models;
 
 using ClinicApp.Enums;
+using ClinicApp.Utils;
 
 public class Appointment
 {
@@ -20,10 +21,7 @@ public class Appointment
         get => _durationMinutes;
         set
         {
-            if (value <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(DurationMinutes), "Тривалість має бути більшою за нуль.");
-            }
+            ClinicValidator.ValidatePositive(value, nameof(DurationMinutes));
             _durationMinutes = value;
         }
     }
