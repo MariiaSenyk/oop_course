@@ -1,5 +1,10 @@
 namespace ClinicApp;
 
+using ClinicApp.Managers;
+using ClinicApp.Models;
+using ClinicApp.Enums;
+using ClinicApp.Utils;
+
 public class Clinic
 {
     public string Name { get; }

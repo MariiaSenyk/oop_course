@@ -1,5 +1,10 @@
 ﻿namespace ClinicApp;
 
+using ClinicApp.Enums;
+using ClinicApp.Managers;
+using ClinicApp.Models;
+using ClinicApp.Utils;
+
 public static class Program
 {
     public static void Main()
