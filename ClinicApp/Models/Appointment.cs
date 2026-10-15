@@ -4,7 +4,7 @@ using ClinicApp.Enums;
 using ClinicApp.Interfaces;
 using ClinicApp.Utils;
 
-public class Appointment : IPayable
+public class Appointment : IPayable, ICancellable
 {
     private static int _nextId = 1;
 
@@ -31,6 +31,22 @@ public class Appointment : IPayable
     public bool IsPaid
     {
         get { return _isPaid; }
+    }
+    public bool IsCancelled
+    {
+        get { return Status == AppointmentStatus.Cancelled; }
+    }
+
+    public string CancellationReason
+    {
+        get
+        {
+            if (IsCancelled)
+            {
+                return Notes;
+            }
+            return "";
+        }
     }
 
     public DateTime EndsAt

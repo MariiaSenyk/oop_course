@@ -1,6 +1,7 @@
 namespace ClinicApp.Managers;
 
 using ClinicApp.Models;
+using ClinicApp.Interfaces;
 
 public class AppointmentManager
 {
@@ -24,6 +25,18 @@ public class AppointmentManager
             copy[i] = _appointments[i];
         }
         return copy;
+    }
+    public static int CancelAll(ICancellable[] items, string reason = "")
+    {
+        int cancelled = 0;
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].Cancel(reason))
+            {
+                cancelled++;
+            }
+        }
+        return cancelled;
     }
     
     public Appointment? this[int index]
