@@ -33,8 +33,8 @@ public static class Program
         clinic.Doctors.Add(d3);
 
         clinic.Appointments.Book(1, 1, new DateTime(2027, 5, 9, 10, 0, 0));
-        clinic.Appointments.Book(2, 2, new DateTime(2027, 5, 9, 11, 0, 0), 45);
-        clinic.Appointments.Book(3, 3, new DateTime(2027, 5, 10, 9, 0, 0), 20);
+        clinic.Appointments.BookUrgent(2, 2, new DateTime(2027, 5, 9, 11, 0, 0), "біль у грудях");
+        clinic.Appointments.BookSpecialist(3, 3, new DateTime(2027, 5, 10, 9, 0, 0), "кардіологія");
 
         clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-30), "I10", "Гіпертонічна хвороба", isChronic: true));
         clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-5), "J06.9", "Гострий ринофарингіт"));
@@ -44,6 +44,15 @@ public static class Program
         clinic.MedicalRecords.Add(new Prescription(2, 2, DateTime.Today.AddDays(-40), "Аспірин", "500 мг", 10, "після їжі"));
         clinic.MedicalRecords.Add(new Diagnosis(3, 3, DateTime.Today.AddDays(-3), "J45", "Бронхіальна астма"));
         clinic.MedicalRecords.Add(new LabResult(2, 2, DateTime.Today.AddDays(-2), "Цукор", 5.4, "ммоль/л", "4.0–6.0", isNormal: true));
+
+        Console.WriteLine();
+        Console.WriteLine("== new vs override ==");
+
+        UrgentAppointment urgent = new UrgentAppointment(1, 1, DateTime.Today.AddDays(1).AddHours(15), "тест");
+        Appointment asBase = urgent;
+
+        Console.WriteLine($"Через Appointment:       {asBase.GetDescription()} | пріоритет {asBase.GetPriority()}");
+        Console.WriteLine($"Через UrgentAppointment: {urgent.GetDescription()} | пріоритет {urgent.GetPriority()}");
 
         while (true)
         {
@@ -620,7 +629,7 @@ public static class Program
                     if (clinic.Doctors.FindById(doctorId) == null)
                     {
                         Console.WriteLine($"Лікаря з ID {doctorId} не знайдено.");
-                                                continue;
+                        continue;
                     }
 
                     Console.Write("Препарат: ");
