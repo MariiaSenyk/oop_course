@@ -360,6 +360,7 @@ public static class Program
             Console.WriteLine("6. Записи лікаря");
             Console.WriteLine("7. Записи на дату");
             Console.WriteLine("8. Скасувати всі записи пацієнта");
+            Console.WriteLine("9. За типом прийому");
             Console.WriteLine("0. Назад");
             Console.Write("Ваш вибір: ");
 
@@ -464,6 +465,32 @@ public static class Program
                 Appointment[] items = clinic.Appointments.GetByPatient(patientId);
                 int cancelled = AppointmentManager.CancelAll(items, reason);
                 Console.WriteLine($"Скасовано записів: {cancelled}");
+            }
+            else if (choice == "9")
+            {
+                Console.WriteLine("  1. Термінові");
+                Console.WriteLine("  2. Консультації спеціаліста");
+                Console.WriteLine("  3. Звичайні");
+                Console.Write("Оберіть: ");
+
+                string typeChoice = Console.ReadLine()!;
+
+                if (typeChoice == "1")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetUrgent());
+                }
+                else if (typeChoice == "2")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetSpecialist());
+                }
+                else if (typeChoice == "3")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetRegular());
+                }
+                else
+                {
+                    Console.WriteLine("Невідома команда.");
+                }
             }
             else if (choice == "0")
             {
