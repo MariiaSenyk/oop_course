@@ -33,8 +33,8 @@ public static class Program
         clinic.Doctors.Add(d3);
 
         clinic.Appointments.Book(1, 1, new DateTime(2027, 5, 9, 10, 0, 0));
-        clinic.Appointments.Book(2, 2, new DateTime(2027, 5, 9, 11, 0, 0), 45);
-        clinic.Appointments.Book(3, 3, new DateTime(2027, 5, 10, 9, 0, 0), 20);
+        clinic.Appointments.BookUrgent(2, 2, new DateTime(2027, 5, 9, 11, 0, 0), "біль у грудях");
+        clinic.Appointments.BookSpecialist(3, 3, new DateTime(2027, 5, 10, 9, 0, 0), "кардіологія");
 
         clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-30), "I10", "Гіпертонічна хвороба", isChronic: true));
         clinic.MedicalRecords.Add(new Diagnosis(1, 1, DateTime.Today.AddDays(-5), "J06.9", "Гострий ринофарингіт"));
@@ -44,6 +44,30 @@ public static class Program
         clinic.MedicalRecords.Add(new Prescription(2, 2, DateTime.Today.AddDays(-40), "Аспірин", "500 мг", 10, "після їжі"));
         clinic.MedicalRecords.Add(new Diagnosis(3, 3, DateTime.Today.AddDays(-3), "J45", "Бронхіальна астма"));
         clinic.MedicalRecords.Add(new LabResult(2, 2, DateTime.Today.AddDays(-2), "Цукор", 5.4, "ммоль/л", "4.0–6.0", isNormal: true));
+
+        Console.WriteLine();
+        Console.WriteLine("== new vs override ==");
+
+        UrgentAppointment urgent = new UrgentAppointment(1, 1, DateTime.Today.AddDays(1).AddHours(15), "тест");
+        Appointment asBase = urgent;
+
+        Console.WriteLine($"Через Appointment:       {asBase.GetDescription()} | пріоритет {asBase.GetPriority()}");
+        Console.WriteLine($"Через UrgentAppointment: {urgent.GetDescription()} | пріоритет {urgent.GetPriority()}");
+
+        Console.WriteLine();
+        Console.WriteLine("== VIP discount ==");
+
+        Appointment vipRegular = new RegularAppointment(1, 1, DateTime.Today.AddDays(2).AddHours(10), 30);
+        vipRegular.DiscountMultiplier = 0.8m;
+        Console.WriteLine($"VIP Regular: {vipRegular.GetCost():F2} грн"); // 240
+
+        Appointment vipUrgent = new UrgentAppointment(1, 1, DateTime.Today.AddDays(2).AddHours(11), "тест", 30);
+        vipUrgent.DiscountMultiplier = 0.8m;
+        Console.WriteLine($"VIP Urgent: {vipUrgent.GetCost():F2} грн"); // 360
+
+        Appointment vipSpecialist = new SpecialistAppointment(1, 1, DateTime.Today.AddDays(2).AddHours(12), "тест", 30);
+        vipSpecialist.DiscountMultiplier = 0.8m;
+        Console.WriteLine($"VIP Specialist: {vipSpecialist.GetCost():F2} грн"); // 312
 
         while (true)
         {
@@ -351,6 +375,7 @@ public static class Program
             Console.WriteLine("6. Записи лікаря");
             Console.WriteLine("7. Записи на дату");
             Console.WriteLine("8. Скасувати всі записи пацієнта");
+            Console.WriteLine("9. За типом прийому");
             Console.WriteLine("0. Назад");
             Console.Write("Ваш вибір: ");
 
@@ -455,6 +480,32 @@ public static class Program
                 Appointment[] items = clinic.Appointments.GetByPatient(patientId);
                 int cancelled = AppointmentManager.CancelAll(items, reason);
                 Console.WriteLine($"Скасовано записів: {cancelled}");
+            }
+            else if (choice == "9")
+            {
+                Console.WriteLine("  1. Термінові");
+                Console.WriteLine("  2. Консультації спеціаліста");
+                Console.WriteLine("  3. Звичайні");
+                Console.Write("Оберіть: ");
+
+                string typeChoice = Console.ReadLine()!;
+
+                if (typeChoice == "1")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetUrgent());
+                }
+                else if (typeChoice == "2")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetSpecialist());
+                }
+                else if (typeChoice == "3")
+                {
+                    clinic.Appointments.DisplayList(clinic.Appointments.GetRegular());
+                }
+                else
+                {
+                    Console.WriteLine("Невідома команда.");
+                }
             }
             else if (choice == "0")
             {
@@ -620,7 +671,7 @@ public static class Program
                     if (clinic.Doctors.FindById(doctorId) == null)
                     {
                         Console.WriteLine($"Лікаря з ID {doctorId} не знайдено.");
-                                                continue;
+                        continue;
                     }
 
                     Console.Write("Препарат: ");
