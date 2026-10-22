@@ -54,6 +54,21 @@ public static class Program
         Console.WriteLine($"Через Appointment:       {asBase.GetDescription()} | пріоритет {asBase.GetPriority()}");
         Console.WriteLine($"Через UrgentAppointment: {urgent.GetDescription()} | пріоритет {urgent.GetPriority()}");
 
+        Console.WriteLine();
+        Console.WriteLine("== VIP discount ==");
+
+        Appointment vipRegular = new RegularAppointment(1, 1, DateTime.Today.AddDays(2).AddHours(10), 30);
+        vipRegular.DiscountMultiplier = 0.8m;
+        Console.WriteLine($"VIP Regular: {vipRegular.GetCost():F2} грн"); // 240
+
+        Appointment vipUrgent = new UrgentAppointment(1, 1, DateTime.Today.AddDays(2).AddHours(11), "тест", 30);
+        vipUrgent.DiscountMultiplier = 0.8m;
+        Console.WriteLine($"VIP Urgent: {vipUrgent.GetCost():F2} грн"); // 360
+
+        Appointment vipSpecialist = new SpecialistAppointment(1, 1, DateTime.Today.AddDays(2).AddHours(12), "тест", 30);
+        vipSpecialist.DiscountMultiplier = 0.8m;
+        Console.WriteLine($"VIP Specialist: {vipSpecialist.GetCost():F2} грн"); // 312
+
         while (true)
         {
             Console.WriteLine();

@@ -17,6 +17,7 @@ public class Appointment : IPayable, ICancellable
     public DateTime ScheduledAt { get; set; }
     public AppointmentStatus Status { get; private set; }
     public string Notes { get; private set; }
+    public decimal DiscountMultiplier { get; set; } = 1m;
 
     public int DurationMinutes
     {
@@ -73,7 +74,7 @@ public class Appointment : IPayable, ICancellable
 
     public virtual decimal GetCost()
     {
-        return DurationMinutes * 10m;
+        return DurationMinutes * 10m * DiscountMultiplier;
     }
 
     public virtual string GetDescription()
