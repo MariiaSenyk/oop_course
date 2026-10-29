@@ -3,8 +3,7 @@ namespace ClinicApp.Models;
 using ClinicApp.Enums;
 using ClinicApp.Interfaces;
 using ClinicApp.Utils;
-
-public class Appointment : IPayable, ICancellable
+public class Appointment : IPayable, ICancellable, IIdentifiable
 {
     private static int _nextId = 1;
 
