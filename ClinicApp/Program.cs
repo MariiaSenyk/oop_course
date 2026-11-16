@@ -85,6 +85,7 @@ public static class Program
             Console.WriteLine("║  6. Черга          — очікування, прийом      ║");
             Console.WriteLine("║  7. Звіт           — загальна статистика     ║");
             Console.WriteLine("║  8. Аналітика      — рейтинги та лідери      ║");
+            Console.WriteLine("║  9. Плани лікування — рефлексія, атрибути    ║");
             Console.WriteLine("║  0. Вийти                                    ║");
             Console.WriteLine("╚══════════════════════════════════════════════╝");
             Console.Write("Оберіть розділ: ");
@@ -122,6 +123,10 @@ public static class Program
             else if (choice == "8")
             {
                 AnalyticsMenu(clinic);
+            }
+            else if (choice == "9")
+            {
+                TreatmentPlansMenu(clinic);
             }
             else if (choice == "0")
             {
@@ -898,7 +903,7 @@ public static class Program
             if (choice == "1")
             {
                 List<DoctorStats> list = CollectDoctorStats(clinic);
-                list.Sort(); // IComparable
+                list.Sort();
                 foreach (var s in list) Console.WriteLine(s);
             }
             else if (choice == "2")
@@ -916,7 +921,7 @@ public static class Program
             else if (choice == "4")
             {
                 List<PatientStats> list = CollectPatientStats(clinic);
-                list.Sort(); // IComparable
+                list.Sort();
                 foreach (var s in list) Console.WriteLine(s);
             }
             else if (choice == "5")
@@ -954,6 +959,130 @@ public static class Program
             list.Add(stats);
         }
         return list;
+    }
+
+    private static void TreatmentPlansMenu(Clinic clinic)
+    {
+        while (true)
+        {
+            Console.WriteLine();
+            Console.WriteLine("── Плани лікування ────────────────────");
+            Console.WriteLine("  1. Показати всі плани");
+            Console.WriteLine("  2. Додати план лікування");
+            Console.WriteLine("  3. Плани пацієнта");
+            Console.WriteLine("  4. Активувати план");
+            Console.WriteLine("  5. Завершити план");
+            Console.WriteLine("  6. Скасувати план");
+            Console.WriteLine("  7. Інформація про тип TreatmentPlan");
+            Console.WriteLine("  0. Назад");
+            Console.Write("Оберіть: ");
+
+            string choice = Console.ReadLine()!;
+
+            if (choice == "1")
+            {
+                TreatmentPlan[] plans = clinic.TreatmentPlans.GetAll();
+                if (plans.Length == 0)
+                {
+                    Console.WriteLine("Список планів порожній.");
+                }
+                else
+                {
+                    for (int i = 0; i < plans.Length; i++)
+                    {
+                        Console.WriteLine(plans[i]);
+                    }
+                }
+            }
+            else if (choice == "2")
+            {
+                Console.WriteLine("Заповніть форму:");
+                TreatmentPlan plan = FormBuilder.Build<TreatmentPlan>();
+                clinic.TreatmentPlans.Add(plan);
+            }
+            else if (choice == "3")
+            {
+                if (!TryReadInt("ID пацієнта: ", out int patientId)) continue;
+                TreatmentPlan[] plans = clinic.TreatmentPlans.GetByPatient(patientId);
+                if (plans.Length == 0)
+                {
+                    Console.WriteLine("Планів не знайдено.");
+                }
+                else
+                {
+                    for (int i = 0; i < plans.Length; i++)
+                    {
+                        Console.WriteLine(plans[i]);
+                    }
+                }
+            }
+            else if (choice == "4")
+            {
+                if (!TryReadInt("ID плану: ", out int id)) continue;
+                TreatmentPlan? plan = clinic.TreatmentPlans.GetById(id);
+                if (plan == null)
+                {
+                    Console.WriteLine("План не знайдено.");
+                    continue;
+                }
+                if (plan.Activate())
+                {
+                    Console.WriteLine($"План [{id}] активовано.");
+                }
+                else
+                {
+                    Console.WriteLine($"Неможливо активувати план [{id}] у стані {plan.Status}.");
+                }
+            }
+            else if (choice == "5")
+            {
+                if (!TryReadInt("ID плану: ", out int id)) continue;
+                TreatmentPlan? plan = clinic.TreatmentPlans.GetById(id);
+                if (plan == null)
+                {
+                    Console.WriteLine("План не знайдено.");
+                    continue;
+                }
+                if (plan.Complete())
+                {
+                    Console.WriteLine($"План [{id}] завершено.");
+                }
+                else
+                {
+                    Console.WriteLine($"Неможливо завершити план [{id}] у стані {plan.Status}.");
+                }
+            }
+            else if (choice == "6")
+            {
+                if (!TryReadInt("ID плану: ", out int id)) continue;
+                TreatmentPlan? plan = clinic.TreatmentPlans.GetById(id);
+                if (plan == null)
+                {
+                    Console.WriteLine("План не знайдено.");
+                    continue;
+                }
+                if (plan.Cancel())
+                {
+                    Console.WriteLine($"План [{id}] скасовано.");
+                }
+                else
+                {
+                    Console.WriteLine($"Неможливо скасувати план [{id}] у стані {plan.Status}.");
+                }
+            }
+            else if (choice == "7")
+            {
+                ModelValidator.PrintInfo(typeof(TreatmentPlan));
+            }
+            else if (choice == "0")
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Невідома команда.");
+            }
+        }
     }
 
     private static bool TryReadInt(string prompt, out int value)
