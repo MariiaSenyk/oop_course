@@ -1132,6 +1132,8 @@ public static class Program
             Console.WriteLine("── Файли ───────────────────");
             Console.WriteLine("  1. Останні рядки лога");
             Console.WriteLine("  2. Очистити лог");
+            Console.WriteLine("  3. Експортувати всі звіти");
+            Console.WriteLine("  4. Імпорт пацієнтів з CSV");
             Console.WriteLine("  0. Назад");
             Console.Write("Оберіть: ");
 
@@ -1154,6 +1156,22 @@ public static class Program
             {
                 clinic.Logger.Clear();
                 Console.WriteLine("Лог очищено.");
+            }
+            else if (choice == "3")
+            {
+                string[] paths = clinic.Exporter.ExportAll();
+                Console.WriteLine("Звіти збережено:");
+                foreach (var path in paths)
+                {
+                    Console.WriteLine($"  {path}");
+                }
+            }
+            else if (choice == "4")
+            {
+                Console.Write("Шлях до файлу CSV: ");
+                string filePath = Console.ReadLine()!;
+                ImportResult res = CsvImporter.ImportPatients(clinic, filePath);
+                res.Print();
             }
             else if (choice == "0")
             {

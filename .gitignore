@@ -12,4 +12,5 @@ Thumbs.db
 
 # Секрети
 *.env
-appsettings.Development.json
+appsettings.Development.jsonpatients.csv
+reports/
