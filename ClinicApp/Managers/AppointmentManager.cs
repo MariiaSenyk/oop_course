@@ -1,5 +1,7 @@
 namespace ClinicApp.Managers;
 
+using System;
+using ClinicApp.Events;
 using ClinicApp.Interfaces;
 using ClinicApp.Models;
 
@@ -11,6 +13,9 @@ public class AppointmentManager
 
     private PatientManager _patients;
     private DoctorManager _doctors;
+
+    // Подія
+    public event EventHandler<AppointmentEventArgs>? AppointmentBooked;
 
     public int Count
     {
@@ -102,28 +107,30 @@ public class AppointmentManager
         _count++;
 
         Console.WriteLine($"Запис [{appointment.Id}] створено: {patient.FullName} → {doctor.FullName} о {appointment.ScheduledAt:dd.MM.yyyy HH:mm}");
+
+        // Піднімаємо подію
+        AppointmentBooked?.Invoke(this, new AppointmentEventArgs(
+            appointment.Id,
+            appointment.PatientId,
+            appointment.DoctorId,
+            appointment.ScheduledAt,
+            appointment.Notes
+        ));
+
         return true;
     }
 
     public bool Cancel(int id, string reason = "")
     {
         Appointment? found = FindById(id);
-        if (found == null)
-        {
-            return false;
-        }
-
+        if (found == null) return false;
         return found.Cancel(reason);
     }
 
     public bool Complete(int id)
     {
         Appointment? found = FindById(id);
-        if (found == null)
-        {
-            return false;
-        }
-
+        if (found == null) return false;
         return found.Complete();
     }
 
@@ -131,9 +138,7 @@ public class AppointmentManager
     {
         int matches = 0;
         for (int i = 0; i < _count; i++)
-        {
             if (_appointments[i].PatientId == patientId) matches++;
-        }
 
         Appointment[] result = new Appointment[matches];
         int index = 0;
@@ -152,9 +157,7 @@ public class AppointmentManager
     {
         int matches = 0;
         for (int i = 0; i < _count; i++)
-        {
             if (_appointments[i].DoctorId == doctorId) matches++;
-        }
 
         Appointment[] result = new Appointment[matches];
         int index = 0;
@@ -173,9 +176,7 @@ public class AppointmentManager
     {
         int matches = 0;
         for (int i = 0; i < _count; i++)
-        {
             if (_appointments[i].ScheduledAt.Date == date.Date) matches++;
-        }
 
         Appointment[] result = new Appointment[matches];
         int index = 0;
@@ -199,9 +200,7 @@ public class AppointmentManager
     {
         int matches = 0;
         for (int i = 0; i < _count; i++)
-        {
             if (_appointments[i].IsUpcoming) matches++;
-        }
 
         Appointment[] result = new Appointment[matches];
         int index = 0;
@@ -216,13 +215,12 @@ public class AppointmentManager
         return result;
     }
 
+    // Методи фільтрації за типом (для меню)
     public Appointment[] GetUrgent()
     {
         int matches = 0;
         for (int i = 0; i < _count; i++)
-        {
             if (_appointments[i] is UrgentAppointment) matches++;
-        }
 
         Appointment[] result = new Appointment[matches];
         int index = 0;
@@ -241,9 +239,7 @@ public class AppointmentManager
     {
         int matches = 0;
         for (int i = 0; i < _count; i++)
-        {
             if (_appointments[i] is SpecialistAppointment) matches++;
-        }
 
         Appointment[] result = new Appointment[matches];
         int index = 0;
@@ -262,9 +258,7 @@ public class AppointmentManager
     {
         int matches = 0;
         for (int i = 0; i < _count; i++)
-        {
             if (_appointments[i] is RegularAppointment) matches++;
-        }
 
         Appointment[] result = new Appointment[matches];
         int index = 0;

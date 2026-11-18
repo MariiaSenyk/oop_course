@@ -1,6 +1,7 @@
 ﻿namespace ClinicApp;
 
 using System.Globalization;
+using ClinicApp.Events;
 using ClinicApp.Enums;
 using ClinicApp.Interfaces;
 using ClinicApp.Managers;
@@ -34,6 +35,8 @@ public static class Program
 
         Doctor d3 = new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789");
         clinic.Doctors.Add(d3);
+
+        clinic.Appointments.AppointmentBooked += OnAppointmentBookedConsole;
 
         clinic.Appointments.Book(1, 1, new DateTime(2027, 5, 9, 10, 0, 0));
         clinic.Appointments.BookUrgent(2, 2, new DateTime(2027, 5, 9, 11, 0, 0), "біль у грудях");
@@ -1202,7 +1205,12 @@ public static class Program
             }
         }
     }
-
+    private static void OnAppointmentBookedConsole(object? sender, AppointmentEventArgs e)
+    {
+        string notes = string.IsNullOrWhiteSpace(e.Notes) ? "" : $" [{e.Notes}]";
+        Console.WriteLine($"  [EVENT] Запис #{e.AppointmentId} створено: пацієнт #{e.PatientId} → лікар #{e.DoctorId}, {e.ScheduledAt:dd.MM.yyyy HH:mm}{notes}");
+    }
+    
     private static bool TryReadInt(string prompt, out int value)
     {
         Console.Write(prompt);
