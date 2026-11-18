@@ -16,3 +16,4 @@ appsettings.Development.jsonpatients.csv
 reports/
 clinic.log
 patients.csv
+session.dat

@@ -72,6 +72,18 @@ public static class Program
         vipSpecialist.DiscountMultiplier = 0.8m;
         Console.WriteLine($"VIP Specialist: {vipSpecialist.GetCost():F2} грн");
 
+        Console.WriteLine();
+        if (clinic.Session.Exists())
+        {
+            Console.Write("Знайдено збережену сесію. Завантажити? (y/n): ");
+            string answer = Console.ReadLine()!;
+            if (answer.Trim().ToLower() == "y")
+            {
+                int loaded = clinic.Session.Load(clinic);
+                Console.WriteLine($"Завантажено {loaded} пацієнтів.");
+            }
+        }
+
         while (true)
         {
             Console.WriteLine();
@@ -136,6 +148,13 @@ public static class Program
             }
             else if (choice == "0")
             {
+                Console.Write("Зберегти сесію? (y/n): ");
+                string saveAnswer = Console.ReadLine()!;
+                if (saveAnswer.Trim().ToLower() == "y")
+                {
+                    clinic.Session.Save(clinic);
+                    Console.WriteLine("Сесію збережено.");
+                }
                 Console.WriteLine("До побачення.");
                 clinic.Logger.LogInfo("Система завершила роботу.");
                 break;
