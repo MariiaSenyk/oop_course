@@ -1,11 +1,16 @@
 namespace ClinicApp.Managers;
 
+using System;
+using System.Collections.Generic;
+using ClinicApp.Events;
 using ClinicApp.Models;
 using ClinicApp.Enums;
 
 public class PatientManager
 {
     private List<Patient> _patients = new List<Patient>();
+
+    public event EventHandler<PatientEventArgs>? PatientAdded;
 
     public int Count
     {
@@ -28,6 +33,7 @@ public class PatientManager
     {
         _patients.Add(patient);
         Console.WriteLine($"Пацієнта [{patient.Id}] {patient.FullName} додано.");
+        PatientAdded?.Invoke(this, new PatientEventArgs(patient.Id, patient.FullName));
     }
 
     public Patient? FindById(int id)
@@ -50,7 +56,6 @@ public class PatientManager
             patient = null!;
             return false;
         }
-
         patient = found;
         return true;
     }
@@ -59,7 +64,6 @@ public class PatientManager
     {
         string lower = query.ToLower();
         List<Patient> result = new List<Patient>();
-
         for (int i = 0; i < _patients.Count; i++)
         {
             if (_patients[i].FirstName.ToLower().Contains(lower) ||
@@ -74,7 +78,6 @@ public class PatientManager
     public Patient[] FindByBloodType(BloodType bloodType)
     {
         List<Patient> result = new List<Patient>();
-
         for (int i = 0; i < _patients.Count; i++)
         {
             if (_patients[i].BloodType == bloodType)

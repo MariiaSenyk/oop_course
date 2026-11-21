@@ -14,8 +14,10 @@ public class AppointmentManager
     private PatientManager _patients;
     private DoctorManager _doctors;
 
-    // Подія
     public event EventHandler<AppointmentEventArgs>? AppointmentBooked;
+    public event EventHandler<AppointmentEventArgs>? AppointmentCancelled;
+    public event EventHandler<AppointmentEventArgs>? AppointmentCompleted;
+    public event EventHandler<AppointmentEventArgs>? UrgentAppointmentBooked;
 
     public int Count
     {
@@ -26,10 +28,7 @@ public class AppointmentManager
     {
         get
         {
-            if (index < 0 || index >= _count)
-            {
-                return null;
-            }
+            if (index < 0 || index >= _count) return null;
             return _appointments[index];
         }
     }
@@ -43,14 +42,11 @@ public class AppointmentManager
     public Appointment[] GetAll()
     {
         Appointment[] copy = new Appointment[_count];
-        for (int i = 0; i < _count; i++)
-        {
-            copy[i] = _appointments[i];
-        }
+        for (int i = 0; i < _count; i++) copy[i] = _appointments[i];
         return copy;
     }
 
-    public static int CancelAll(ICancellable[] items, string reason = "")
+    public int CancelAll(ICancellable[] items, string reason = "")
     {
         int cancelled = 0;
         for (int i = 0; i < items.Length; i++)
@@ -58,6 +54,10 @@ public class AppointmentManager
             if (items[i].Cancel(reason))
             {
                 cancelled++;
+                if (items[i] is Appointment app)
+                {
+                    AppointmentCancelled?.Invoke(this, new AppointmentEventArgs(app.Id, app.PatientId, app.DoctorId, app.ScheduledAt, reason));
+                }
             }
         }
         return cancelled;
@@ -72,7 +72,12 @@ public class AppointmentManager
     public bool BookUrgent(int patientId, int doctorId, DateTime scheduledAt, string urgencyNote = "", int durationMinutes = 30)
     {
         UrgentAppointment appointment = new UrgentAppointment(patientId, doctorId, scheduledAt, urgencyNote, durationMinutes);
-        return AddAppointment(appointment);
+        bool ok = AddAppointment(appointment);
+        if (ok)
+        {
+            UrgentAppointmentBooked?.Invoke(this, new AppointmentEventArgs(appointment.Id, appointment.PatientId, appointment.DoctorId, appointment.ScheduledAt, urgencyNote));
+        }
+        return ok;
     }
 
     public bool BookSpecialist(int patientId, int doctorId, DateTime scheduledAt, string topic = "", int durationMinutes = 45)
@@ -107,16 +112,7 @@ public class AppointmentManager
         _count++;
 
         Console.WriteLine($"Запис [{appointment.Id}] створено: {patient.FullName} → {doctor.FullName} о {appointment.ScheduledAt:dd.MM.yyyy HH:mm}");
-
-        // Піднімаємо подію
-        AppointmentBooked?.Invoke(this, new AppointmentEventArgs(
-            appointment.Id,
-            appointment.PatientId,
-            appointment.DoctorId,
-            appointment.ScheduledAt,
-            appointment.Notes
-        ));
-
+        AppointmentBooked?.Invoke(this, new AppointmentEventArgs(appointment.Id, appointment.PatientId, appointment.DoctorId, appointment.ScheduledAt, appointment.Notes));
         return true;
     }
 
@@ -124,14 +120,24 @@ public class AppointmentManager
     {
         Appointment? found = FindById(id);
         if (found == null) return false;
-        return found.Cancel(reason);
+        bool ok = found.Cancel(reason);
+        if (ok)
+        {
+            AppointmentCancelled?.Invoke(this, new AppointmentEventArgs(found.Id, found.PatientId, found.DoctorId, found.ScheduledAt, reason));
+        }
+        return ok;
     }
 
     public bool Complete(int id)
     {
         Appointment? found = FindById(id);
         if (found == null) return false;
-        return found.Complete();
+        bool ok = found.Complete();
+        if (ok)
+        {
+            AppointmentCompleted?.Invoke(this, new AppointmentEventArgs(found.Id, found.PatientId, found.DoctorId, found.ScheduledAt, ""));
+        }
+        return ok;
     }
 
     public Appointment[] GetByPatient(int patientId)
@@ -215,7 +221,6 @@ public class AppointmentManager
         return result;
     }
 
-    // Методи фільтрації за типом (для меню)
     public Appointment[] GetUrgent()
     {
         int matches = 0;

@@ -211,7 +211,6 @@ public static class Program
 
                     Patient newPatient = new Patient(firstName, lastName, new DateTime(year, month, day), bloodType, phone);
                     clinic.Patients.Add(newPatient);
-                    clinic.Logger.LogInfo($"Додано пацієнта #{newPatient.Id}: {newPatient.FullName}");
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
@@ -468,7 +467,7 @@ public static class Program
                     bool booked = clinic.Appointments.Book(patientId, doctorId, new DateTime(year, month, day, hour, minute, 0), duration);
                     if (booked)
                     {
-                        clinic.Logger.LogInfo($"Запис створено: пацієнт #{patientId} → лікар #{doctorId}");
+                      
                     }
                 }
                 catch (ArgumentOutOfRangeException e)
@@ -492,7 +491,6 @@ public static class Program
                 if (ok)
                 {
                     Console.WriteLine($"Запис [{id}] скасовано.");
-                    clinic.Logger.LogInfo($"Скасовано запис #{id}. Причина: {reason}");
                 }
                 else
                 {
@@ -508,7 +506,7 @@ public static class Program
                 if (ok)
                 {
                     Console.WriteLine($"Запис [{id}] завершено.");
-                    clinic.Logger.LogInfo($"Завершено запис #{id}");
+                    
                 }
                 else
                 {
@@ -544,7 +542,7 @@ public static class Program
                 string reason = Console.ReadLine()!;
 
                 Appointment[] items = clinic.Appointments.GetByPatient(patientId);
-                int cancelled = AppointmentManager.CancelAll(items, reason);
+                int cancelled = clinic.Appointments.CancelAll(items, reason);
                 Console.WriteLine($"Скасовано записів: {cancelled}");
                 clinic.Logger.LogInfo($"Скасовано {cancelled} записів пацієнта #{patientId}");
             }
@@ -839,7 +837,7 @@ public static class Program
                 if (ok)
                 {
                     Console.WriteLine($"Запис [{id}] оплачено.");
-                    clinic.Logger.LogInfo($"Оплачено запис #{id}");
+                  
                 }
                 else
                 {
