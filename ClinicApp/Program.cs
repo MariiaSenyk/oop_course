@@ -1,6 +1,7 @@
 ﻿namespace ClinicApp;
 
 using System.Globalization;
+using ClinicApp.Events;
 using ClinicApp.Enums;
 using ClinicApp.Interfaces;
 using ClinicApp.Managers;
@@ -34,6 +35,8 @@ public static class Program
 
         Doctor d3 = new Doctor("Андрій", "Власенко", Speciality.Pediatrics, "LIC-003", "0443456789");
         clinic.Doctors.Add(d3);
+
+        clinic.Appointments.AppointmentBooked += OnAppointmentBookedConsole;
 
         clinic.Appointments.Book(1, 1, new DateTime(2027, 5, 9, 10, 0, 0));
         clinic.Appointments.BookUrgent(2, 2, new DateTime(2027, 5, 9, 11, 0, 0), "біль у грудях");
@@ -148,6 +151,9 @@ public static class Program
             }
             else if (choice == "0")
             {
+                clinic.Tracker.PrintSummary();
+                clinic.Tracker.SaveSummary();
+
                 Console.Write("Зберегти сесію? (y/n): ");
                 string saveAnswer = Console.ReadLine()!;
                 if (saveAnswer.Trim().ToLower() == "y")
@@ -208,7 +214,6 @@ public static class Program
 
                     Patient newPatient = new Patient(firstName, lastName, new DateTime(year, month, day), bloodType, phone);
                     clinic.Patients.Add(newPatient);
-                    clinic.Logger.LogInfo($"Додано пацієнта #{newPatient.Id}: {newPatient.FullName}");
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
@@ -465,7 +470,7 @@ public static class Program
                     bool booked = clinic.Appointments.Book(patientId, doctorId, new DateTime(year, month, day, hour, minute, 0), duration);
                     if (booked)
                     {
-                        clinic.Logger.LogInfo($"Запис створено: пацієнт #{patientId} → лікар #{doctorId}");
+                      
                     }
                 }
                 catch (ArgumentOutOfRangeException e)
@@ -489,7 +494,6 @@ public static class Program
                 if (ok)
                 {
                     Console.WriteLine($"Запис [{id}] скасовано.");
-                    clinic.Logger.LogInfo($"Скасовано запис #{id}. Причина: {reason}");
                 }
                 else
                 {
@@ -505,7 +509,7 @@ public static class Program
                 if (ok)
                 {
                     Console.WriteLine($"Запис [{id}] завершено.");
-                    clinic.Logger.LogInfo($"Завершено запис #{id}");
+                    
                 }
                 else
                 {
@@ -541,7 +545,7 @@ public static class Program
                 string reason = Console.ReadLine()!;
 
                 Appointment[] items = clinic.Appointments.GetByPatient(patientId);
-                int cancelled = AppointmentManager.CancelAll(items, reason);
+                int cancelled = clinic.Appointments.CancelAll(items, reason);
                 Console.WriteLine($"Скасовано записів: {cancelled}");
                 clinic.Logger.LogInfo($"Скасовано {cancelled} записів пацієнта #{patientId}");
             }
@@ -836,7 +840,7 @@ public static class Program
                 if (ok)
                 {
                     Console.WriteLine($"Запис [{id}] оплачено.");
-                    clinic.Logger.LogInfo($"Оплачено запис #{id}");
+                  
                 }
                 else
                 {
@@ -1202,7 +1206,12 @@ public static class Program
             }
         }
     }
-
+    private static void OnAppointmentBookedConsole(object? sender, AppointmentEventArgs e)
+    {
+        string notes = string.IsNullOrWhiteSpace(e.Notes) ? "" : $" [{e.Notes}]";
+        Console.WriteLine($"  [EVENT] Запис #{e.AppointmentId} створено: пацієнт #{e.PatientId} → лікар #{e.DoctorId}, {e.ScheduledAt:dd.MM.yyyy HH:mm}{notes}");
+    }
+    
     private static bool TryReadInt(string prompt, out int value)
     {
         Console.Write(prompt);
