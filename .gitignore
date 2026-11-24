@@ -17,3 +17,6 @@ reports/
 clinic.log
 patients.csv
 session.dat
+alerts/
+patients/
+session_summary.txt
