@@ -151,6 +151,9 @@ public static class Program
             }
             else if (choice == "0")
             {
+                clinic.Tracker.PrintSummary();
+                clinic.Tracker.SaveSummary();
+
                 Console.Write("Зберегти сесію? (y/n): ");
                 string saveAnswer = Console.ReadLine()!;
                 if (saveAnswer.Trim().ToLower() == "y")
